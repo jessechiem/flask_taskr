@@ -52,3 +52,27 @@ def login():
             flash('Welcome!')
             return redirect(url_for('tasks'))
     return render_template('login.html')
+
+@app.route('/tasks/')
+@login_required
+def tasks():
+    """ Queries db for closed and open tasks, and passes onto
+    tasks HTML template for rendering.
+
+    With tasks(), users with proper credentials will have full CRUD
+    access; they'll be able to Create, Read, Update, and
+    Delete from the app's database table."""
+    with connect_db() as taskr_db:
+        cur_dict = taskr_db.execute('select name, due_date, priority, task_id from tasks where status=1')
+        open_tasks = [dict(name=row[0], due_date=row[1], priority=row[2],
+                        task_id=row[3]) for row in cur_dict.fetchall()]
+        cur_dict = taskr_db.execute('select name, due_date, priority, task_id from tasks where status=0')
+        closed_tasks = [dict(name=row[0], due_date=row[1], priority=row[2],
+                        task_id=row[3]) for row in cur_dict.fetchall()]
+    return render_template(
+        'tasks.html',
+        form=AddTaskForm(request.form),
+        open_tasks=open_tasks,
+        closed_tasks=closed_tasks
+    )
+        
