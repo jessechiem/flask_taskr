@@ -109,3 +109,12 @@ def complete(task_id):
         flash("The task was marked as complete.")
         return redirect(url_for('tasks'))
             
+@app.route('/delete/<int:task_id>/')
+@login_required
+def delete_entry(task_id):
+    """ view for deleting tasks; the 'D' in CRUD."""
+    with connect_db() as taskr_db:
+        taskr_db.execute('delete from tasks where task_id='+str(task_id))
+        taskr_db.commit()
+        flash("The task was deleted.")
+        return redirect(url_for('tasks'))
