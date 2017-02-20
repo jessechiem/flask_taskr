@@ -76,3 +76,26 @@ def tasks():
         closed_tasks=closed_tasks
     )
         
+@app.route('/add/', methods=['POST'])
+@login_required
+def new_task():
+    """ view for creating new tasks; the 'C' in CRUD."""
+    with connect_db() as taskr_db:
+        name = request.form['name']
+        date = request.form['due_date']
+        priority = request.form['priority']
+        if not name or not date or not priority:
+            flash("All fields are required. Please try again.")
+            return redirect(url_for('tasks'))
+        else:
+            taskr_db.execute('insert into tasks (name, due_date, priority, status) \
+                values (?, ?, ?, 1)', [
+                request.form['name'],
+                request.form['due_date'],
+                request.form['priority']
+                ]
+            )
+            taskr_db.commit()
+            flash("New entry was successfully posted. Thanks.")
+            return redirect(url_for('tasks'))
+            
