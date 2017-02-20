@@ -98,4 +98,14 @@ def new_task():
             taskr_db.commit()
             flash("New entry was successfully posted. Thanks.")
             return redirect(url_for('tasks'))
+
+@app.route('/complete/<int:task_id>/')
+@login_required
+def complete(task_id):
+    """ view for marking tasks as complete; the 'U' in CRUD."""
+    with connect_db() as taskr_db:
+        taskr_db.execute('update tasks set status = 0 where task_id='+str(task_id))
+        taskr_db.commit()
+        flash("The task was marked as complete.")
+        return redirect(url_for('tasks'))
             
